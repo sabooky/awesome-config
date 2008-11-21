@@ -434,5 +434,8 @@ end
 
 -- My keybindings
 keybinding({ modkey }, "p", function () awful.util.spawn('mydmenu.sh') end):add()
-
+keybinding({ "Control", "Mod1" }, "l", function () awful.util.spawn('xscreensaver-command -l') end):add()
+awful.util.spawn('xscreensaver')
+--awful.util.spawn('gnome-screensaver')
+--awful.util.spawn('gnome-power-manager')
 -- }}}
