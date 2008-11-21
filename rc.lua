@@ -2,15 +2,6 @@
 require("awful")
 require("beautiful")
 require("wicked")
-datewidget = widget({
-    type = 'textbox',
-    name = 'datewidget',
-    align = "right"
-})
-
-wicked.register(datewidget, wicked.widgets.date,
-    ' <span color="red">Date:</span> %a %b %d, %I:%M %p')
-
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -162,8 +153,7 @@ for s = 1, screen.count() do
                            mytaglist[s],
                            mytasklist[s],
                            mypromptbox[s],
-                           datewidget,
-                           -- mytextbox,
+                           mytextbox,
                            mylayoutbox[s],
                            s == 1 and mysystray or nil }
     mywibox[s].screen = s
@@ -419,10 +409,30 @@ awful.hooks.arrange.register(function (screen)
 end)
 
 -- Hook called every second
-awful.hooks.timer.register(1, function ()
+-- awful.hooks.timer.register(1, function ()
     -- For unix time_t lovers
     -- mytextbox.text = " " .. os.time() .. " time_t "
     -- Otherwise use:
     -- mytextbox.text = " " .. os.date() .. " "
-end)
+-- end)
+
+
+-- My widget definitions
+datewidget = widget({
+    type = 'textbox',
+    name = 'datewidget',
+    align = "right"
+})
+
+wicked.register(datewidget, wicked.widgets.date,
+ --   ' <span color="red">Date:</span> %a %b %d, %I:%M %p')
+  '<span color="red">%a %b %d</span>, <span color="green">%I:%M %p</span>')
+
+for s = 1, screen.count() do
+   mywibox[s].widgets[5] = datewidget;
+end
+
+-- My keybindings
+keybinding({ modkey }, "p", function () awful.util.spawn('mydmenu.sh') end):add()
+
 -- }}}
