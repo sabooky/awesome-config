@@ -417,25 +417,45 @@ end)
 -- end)
 
 
--- My widget definitions
+-- {{ My personal config options
+-- {{ My widget definitions
 datewidget = widget({
     type = 'textbox',
     name = 'datewidget',
     align = "right"
 })
 
+
 wicked.register(datewidget, wicked.widgets.date,
- --   ' <span color="red">Date:</span> %a %b %d, %I:%M %p')
   '<span color="red">%a %b %d</span>, <span color="green">%I:%M %p</span>')
 
 for s = 1, screen.count() do
    mywibox[s].widgets[5] = datewidget;
 end
+-- }}
 
--- My keybindings
+-- {{ My keybindings
 keybinding({ modkey }, "p", function () awful.util.spawn('mydmenu.sh') end):add()
 keybinding({ "Control", "Mod1" }, "l", function () awful.util.spawn('xscreensaver-command -l') end):add()
-awful.util.spawn('xscreensaver')
---awful.util.spawn('gnome-screensaver')
---awful.util.spawn('gnome-power-manager')
--- }}}
+-- }}
+
+-- -- {{ My hooks
+-- -- add transperancy to unofused windows
+-- -- Hook function to execute when focusing a client.
+-- awful.hooks.focus.register(function (c)
+--   c.opacity = 1
+--
+-- end)
+--
+-- -- Hook function to execute when unfocusing a client.
+-- awful.hooks.unfocus.register(function (c)
+--   c.opacity = 0.6
+-- end)
+-- -- }}
+
+
+-- {{ programs to run on startup
+-- awesome.spawn('conky')
+awesome.spawn('xscreensaver')
+-- }}
+-- }}
