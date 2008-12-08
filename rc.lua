@@ -15,7 +15,7 @@ theme_path = os.getenv("HOME").."/.config/awesome/themes/default/theme"
 beautiful.init(theme_path)
 
 -- This is used later as the default terminal and editor to run.
-terminal = "urxvt"
+terminal = "myurxvt.sh"
 editor = os.getenv("EDITOR") or "vim"
 editor_cmd = terminal .. " -e " .. editor
 
