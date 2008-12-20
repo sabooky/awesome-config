@@ -225,20 +225,20 @@ keybinding({ modkey, "Shift" }, "q", awesome.quit):add()
 
 -- Client manipulation
 keybinding({ modkey }, "m", awful.client.maximize):add()
-keybinding({ modkey }, "f", function () client.focus.fullscreen = not client.focus.fullscreen end):add()
-keybinding({ modkey, "Shift" }, "c", function () client.focus:kill() end):add()
-keybinding({ modkey }, "j", function () awful.client.focus.byidx(1); client.focus:raise() end):add()
-keybinding({ modkey }, "k", function () awful.client.focus.byidx(-1);  client.focus:raise() end):add()
+keybinding({ modkey }, "f", function () if client.focus then client.focus.fullscreen = not client.focus.fullscreen end end):add()
+keybinding({ modkey, "Shift" }, "c", function () if client.focus then client.focus:kill() end end):add()
+keybinding({ modkey }, "j", function () awful.client.focus.byidx(1); if client.focus then client.focus:raise() end end):add()
+keybinding({ modkey }, "k", function () awful.client.focus.byidx(-1);  if client.focus then client.focus:raise() end end):add()
 keybinding({ modkey, "Shift" }, "j", function () awful.client.swap.byidx(1) end):add()
-keybinding({ modkey, "Shift" }, "k", function () awful.client.swap(-1) end):add()
+keybinding({ modkey, "Shift" }, "k", function () awful.client.swap.byidx(-1) end):add()
 keybinding({ modkey, "Control" }, "j", function () awful.screen.focus(1) end):add()
 keybinding({ modkey, "Control" }, "k", function () awful.screen.focus(-1) end):add()
 keybinding({ modkey, "Control" }, "space", awful.client.togglefloating):add()
-keybinding({ modkey, "Control" }, "Return", function () client.focus:swap(awful.client.getmaster()) end):add()
+keybinding({ modkey, "Control" }, "Return", function () if client.focus then client.focus:swap(awful.client.getmaster()) end end):add()
 keybinding({ modkey }, "o", awful.client.movetoscreen):add()
 keybinding({ modkey }, "Tab", awful.client.focus.history.previous):add()
 keybinding({ modkey }, "u", awful.client.urgent.jumpto):add()
-keybinding({ modkey, "Shift" }, "r", function () client.focus:redraw() end):add()
+keybinding({ modkey, "Shift" }, "r", function () if client.focus then client.focus:redraw() end end):add()
 
 -- Layout manipulation
 keybinding({ modkey }, "l", function () awful.tag.incmwfact(0.05) end):add()
@@ -264,7 +264,7 @@ keybinding({ modkey, "Ctrl" }, "i", function ()
                                         local s = mouse.screen
                                         if mypromptbox[s].text then
                                             mypromptbox[s].text = nil
-                                        else
+                                        elseif client.focus then
                                             mypromptbox[s].text = nil
                                             if client.focus.class then
                                                 mypromptbox[s].text = "Class: " .. client.focus.class .. " "
@@ -344,7 +344,6 @@ awful.hooks.manage.register(function (c)
     -- if they're not focusable, so set border anyway.
     c.border_width = beautiful.border_width
     c.border_color = beautiful.border_normal
-    client.focus = c
 
     -- Check if the application should be floating.
     local cls = c.class
@@ -366,6 +365,9 @@ awful.hooks.manage.register(function (c)
         c.screen = target.screen
         awful.client.movetotag(tags[target.screen][target.tag], c)
     end
+
+    -- Do this after tag mapping, so you don't see it on the wrong tag for a split second.
+    client.focus = c
 
     -- Set the windows at the slave,
     -- i.e. put it at the end of others instead of setting it master.
