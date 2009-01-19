@@ -33,3 +33,6 @@ URxvt.colorUL:          #86a2be
 
 # urgant
 urxvt*urgentOnBell: true
+
+# do not print to lpr
+URxvt.print-pipe:
