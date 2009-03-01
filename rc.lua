@@ -2,6 +2,7 @@
 require("awful")
 require("beautiful")
 require("wicked")
+require("naughty")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -420,25 +421,78 @@ end)
 
 
 -- {{ My personal config options
--- {{ My widget definitions
+-- {{ My Date Widget/calendar definitions
 datewidget = widget({
     type = 'textbox',
     name = 'datewidget',
     align = "right"
 })
 
-
 wicked.register(datewidget, wicked.widgets.date,
   '<span color="red">%a %b %d</span>, <span color="green">%I:%M %p</span>')
 
 for s = 1, screen.count() do
-   mywibox[s].widgets[5] = datewidget;
+   mywibox[s].widgets[5] = datewidget
 end
+
+-- calendar for date widget
+local calendar = nil
+local offset = 0
+
+function remove_calendar()
+    if calendar ~= nil then
+        naughty.destroy(calendar)
+        calendar = nil
+        offset = 0
+    end
+end
+
+function add_calendar(inc_offset)
+    local save_offset = offset
+    remove_calendar()
+    offset = save_offset + inc_offset
+    local datespec = os.date("*t")
+    datespec = datespec.year * 12 + datespec.month - 1 + offset
+    datespec = (datespec % 12 + 1) .. " " .. math.floor(datespec / 12)
+    local cal = awful.util.pread("cal " .. datespec)
+    cal = string.gsub(cal, "^%s*(.-)%s*$", "%1")
+    calendar = naughty.notify({
+        text = string.format('<span font_desc="%s">%s</span>', "monospace", cal),
+        timeout = 0, hover_timeout = 0.5,
+        width = 160,
+    })
+end
+
+-- I prefer click to toggle calendar
+-- change clockbox for your clock widget (e.g. mytextbox)
+-- datewidget.mouse_enter = function()
+--     add_calendar(0)
+-- end
+
+datewidget.mouse_leave = remove_calendar
+
+datewidget:buttons({
+    button({ }, 1, function()
+        add_calendar(0)
+    end),
+    button({ }, 4, function()
+        add_calendar(-1)
+    end),
+    button({ }, 5, function()
+        add_calendar(1)
+    end),
+})
 -- }}
 
--- {{ My keybindings
+-- {{ My key/mouse bindings
+-- key
 keybinding({ modkey }, "p", function () awful.util.spawn('mydmenu.sh') end):add()
 keybinding({ "Control", "Mod1" }, "l", function () awful.util.spawn('xscreensaver-command -l') end):add()
+
+-- mouse
+-- remove the right click menue for tasklist
+table.remove(mytasklist.buttons, 2)
+table.remove(awesome.buttons, 1)
 -- }}
 
 -- -- {{ My hooks
@@ -461,3 +515,4 @@ keybinding({ "Control", "Mod1" }, "l", function () awful.util.spawn('xscreensave
 awesome.spawn('xscreensaver')
 -- }}
 -- }}
+
