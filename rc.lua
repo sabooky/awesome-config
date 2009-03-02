@@ -163,7 +163,7 @@ end
 
 -- {{{ Mouse bindings
 awesome.buttons({
-    button({ }, 3, function () mymainmenu:toggle() end),
+--    button({ }, 3, function () mymainmenu:toggle() end),
     button({ }, 4, awful.tag.viewnext),
     button({ }, 5, awful.tag.viewprev)
 })
@@ -492,7 +492,6 @@ keybinding({ "Control", "Mod1" }, "l", function () awful.util.spawn('xscreensave
 -- mouse
 -- remove the right click menue for tasklist
 table.remove(mytasklist.buttons, 2)
-table.remove(awesome.buttons, 1)
 -- }}
 
 -- -- {{ My hooks
@@ -515,4 +514,3 @@ table.remove(awesome.buttons, 1)
 awesome.spawn('xscreensaver')
 -- }}
 -- }}
-
