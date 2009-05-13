@@ -448,9 +448,6 @@ datewidget = widget({
 wicked.register(datewidget, wicked.widgets.date,
   '<span color="red">%a %b %d</span>, <span color="green">%I:%M %p</span>')
 
-for s = 1, screen.count() do
-   mywibox[s].widgets[5] = datewidget
-end
 
 -- calendar for date widget
 local calendar = nil
@@ -500,6 +497,60 @@ datewidget:buttons({
     end),
 })
 -- }}
+
+pacmanwidget = widget({
+    type = 'textbox',
+    name = 'pacmanwidget',
+    align = "right"
+})
+
+function run_script()
+    local filedescriptor = io.popen('conkypac3b.py')
+    local value = filedescriptor:read()
+    filedescriptor:close()
+
+    return {value}
+end
+
+wicked.register(pacmanwidget, run_script, "$1", 60)
+
+pacman = nil
+function show_packages()
+    local out = awful.util.pread('conkypac3.py')
+    pacman = naughty.notify({
+        text = string.format('<span font_desc="%s">%s</span>', "monospace", out),
+        timeout = 0, hover_timeout = 0.5,
+        width = 400,
+    })
+end
+function hide_packages()
+    if pacman ~= nil then
+        naughty.destroy(pacman)
+        pacman = nil
+    end
+end
+
+--pacmanwidget.mouse_enter = show_packages
+pacmanwidget.mouse_leave = hide_packages
+pacmanwidget:buttons({
+    button({ }, 1, function()
+        show_packages()
+    end),
+})
+-- }}
+
+
+for s = 1, screen.count() do
+    mywibox[s].widgets = { mylauncher,
+                           mytaglist[s],
+                           mytasklist[s],
+                           mypromptbox[s],
+                           pacmanwidget,
+                           datewidget,
+                           mylayoutbox[s],
+                           s == 1 and mysystray or nil }
+    --mywibox[s].widgets[5] = datewidget
+end
 
 -- {{ My key/mouse bindings
 -- key
