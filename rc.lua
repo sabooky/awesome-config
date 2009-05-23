@@ -9,7 +9,6 @@ require("naughty")
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
 -- The default is a dark theme
--- theme_path = "/usr/share/awesome/themes/default/theme.lua"
 theme_path = os.getenv("HOME").."/.config/awesome/themes/default/theme.lua"
 -- Uncommment this for a lighter theme
 -- theme_path = "/usr/share/awesome/themes/sky/theme.lua"
@@ -164,12 +163,12 @@ for s = 1, screen.count() do
                            awful.button({ }, 4, function () awful.layout.inc(layouts, 1) end),
                            awful.button({ }, 5, function () awful.layout.inc(layouts, -1) end)))
     -- Create a taglist widget
-    mytaglist[s] = awful.widget.taglist.new(s, awful.widget.taglist.label.all, mytaglist.buttons)
+    mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
 
     -- Create a tasklist widget
-    mytasklist[s] = awful.widget.tasklist.new(function(c)
-                                                  return awful.widget.tasklist.label.currenttags(c, s)
-                                              end, mytasklist.buttons)
+    mytasklist[s] = awful.widget.tasklist(function(c)
+                                              return awful.widget.tasklist.label.currenttags(c, s)
+                                          end, mytasklist.buttons)
 
     -- Create the wibox
     mywibox[s] = wibox({ position = "top", fg = beautiful.fg_normal, bg = beautiful.bg_normal })
@@ -274,33 +273,34 @@ for s = 1, screen.count() do
 end
 
 for i = 1, keynumber do
-    table.foreach(awful.key({ modkey }, i,
+    globalkeys = awful.util.table.join(globalkeys,
+        awful.key({ modkey }, i,
                   function ()
                         local screen = mouse.screen
                         if tags[screen][i] then
                             awful.tag.viewonly(tags[screen][i])
                         end
-                  end), function(_, k) table.insert(globalkeys, k) end)
-    table.foreach(awful.key({ modkey, "Control" }, i,
+                  end),
+        awful.key({ modkey, "Control" }, i,
                   function ()
                       local screen = mouse.screen
                       if tags[screen][i] then
                           tags[screen][i].selected = not tags[screen][i].selected
                       end
-                  end), function(_, k) table.insert(globalkeys, k) end)
-    table.foreach(awful.key({ modkey, "Shift" }, i,
+                  end),
+        awful.key({ modkey, "Shift" }, i,
                   function ()
                       if client.focus and tags[client.focus.screen][i] then
                           awful.client.movetotag(tags[client.focus.screen][i])
                       end
-                  end), function(_, k) table.insert(globalkeys, k) end)
-    table.foreach(awful.key({ modkey, "Control", "Shift" }, i,
+                  end),
+        awful.key({ modkey, "Control", "Shift" }, i,
                   function ()
                       if client.focus and tags[client.focus.screen][i] then
                           awful.client.toggletag(tags[client.focus.screen][i])
                       end
-                  end), function(_, k) table.insert(globalkeys, k) end)
-    table.foreach(awful.key({ modkey, "Shift" }, "F" .. i,
+                  end),
+        awful.key({ modkey, "Shift" }, "F" .. i,
                   function ()
                       local screen = mouse.screen
                       if tags[screen][i] then
@@ -308,7 +308,7 @@ for i = 1, keynumber do
                               awful.client.movetotag(tags[screen][i], c)
                           end
                       end
-                   end), function(_, k) table.insert(globalkeys, k) end)
+                   end))
 end
 
 -- Set keys
@@ -376,9 +376,9 @@ awful.hooks.manage.register(function (c, startup)
     -- Check if the application should be floating.
     local cls = c.class
     local inst = c.instance
-    if floatapps[cls] then
+    if floatapps[cls] ~= nil then
         awful.client.floating.set(c, floatapps[cls])
-    elseif floatapps[inst] then
+    elseif floatapps[inst] ~= nil then
         awful.client.floating.set(c, floatapps[inst])
     end
 
@@ -432,135 +432,38 @@ end)
 -- end)
 -- }}}
 
+-- My CUSTOMIZATIONS
 
--- {{ My personal config options
--- {{ My Date Widget/calendar definitions
-datewidget = widget({
-    type = 'textbox',
-    name = 'datewidget',
-    align = "right"
-})
-
-wicked.register(datewidget, wicked.widgets.date,
-  '<span color="red">%a %b %d</span>, <span color="green">%I:%M %p</span>')
-
-
--- calendar for date widget
-local calendar = nil
-local offset = 0
-
-function remove_calendar()
-    if calendar ~= nil then
-        naughty.destroy(calendar)
-        calendar = nil
-        offset = 0
-    end
-end
-
-function add_calendar(inc_offset)
-    local save_offset = offset
-    remove_calendar()
-    offset = save_offset + inc_offset
-    local datespec = os.date("*t")
-    datespec = datespec.year * 12 + datespec.month - 1 + offset
-    datespec = (datespec % 12 + 1) .. " " .. math.floor(datespec / 12)
-    local cal = awful.util.pread("cal " .. datespec)
-    cal = string.gsub(cal, "^%s*(.-)%s*$", "%1")
-    calendar = naughty.notify({
-        text = string.format('<span font_desc="%s">%s</span>', "monospace", cal),
-        timeout = 0, hover_timeout = 0.5,
-        width = 165,
-    })
-end
-
--- I prefer click to toggle calendar
--- change clockbox for your clock widget (e.g. mytextbox)
--- datewidget.mouse_enter = function()
---     add_calendar(0)
--- end
-
-datewidget.mouse_leave = remove_calendar
-
-datewidget:buttons({
-    button({ }, 1, function()
-        add_calendar(0)
-    end),
-    button({ }, 4, function()
-        add_calendar(-1)
-    end),
-    button({ }, 5, function()
-        add_calendar(1)
-    end),
-})
--- }}
-
-pacmanwidget = widget({
-    type = 'textbox',
-    name = 'pacmanwidget',
-    align = "right"
-})
-
-function run_script()
-    local filedescriptor = io.popen('conkypac3b.py')
-    local value = filedescriptor:read()
-    filedescriptor:close()
-
-    return {value}
-end
-
-wicked.register(pacmanwidget, run_script, "$1", 60)
-
-pacman = nil
-function show_packages()
-    local out = awful.util.pread('conkypac3.py')
-    pacman = naughty.notify({
-        text = string.format('<span font_desc="%s">%s</span>', "monospace", out),
-        timeout = 0, hover_timeout = 0.5,
-        width = 400,
-    })
-end
-function hide_packages()
-    if pacman ~= nil then
-        naughty.destroy(pacman)
-        pacman = nil
-    end
-end
-
---pacmanwidget.mouse_enter = show_packages
-pacmanwidget.mouse_leave = hide_packages
-pacmanwidget:buttons({
-    button({ }, 1, function()
-        show_packages()
-    end),
-})
--- }}
-
-
+-- {{{ My widgets
+require("calwidget")
+require("pacwidget")
 for s = 1, screen.count() do
     mywibox[s].widgets = { mylauncher,
                            mytaglist[s],
                            mytasklist[s],
                            mypromptbox[s],
-                           pacmanwidget,
-                           datewidget,
+                           pacwidget,
+                           calwidget,
                            mylayoutbox[s],
                            s == 1 and mysystray or nil }
-    --mywibox[s].widgets[5] = datewidget
 end
+-- }}}
 
--- {{ My key/mouse bindings
+-- {{{ My key/mouse bindings
 -- key
-root.keys(awful.util.table.join(root.keys(),
-                                awful.key({ modkey }, "p", function () awful.util.spawn('mydmenu.sh') end),
-                                awful.key({ "Control", "Mod1" }, "l", function () awful.util.spawn('xscreensaver-command -l') end)
-))
-
+root.keys(awful.util.table.join(
+          root.keys(),
+          awful.key({ modkey }, "p", function () awful.util.spawn('mydmenu.rb') end),
+          awful.key({ "Control", "Mod1" }, "l",
+              function () awful.util.spawn('xscreensaver-command -l') end)
+          )
+)
 -- mouse
 -- remove the right click menue for tasklist
 table.remove(mytasklist.buttons, 2)
--- }}
+-- }}}
 
--- -- {{ My hooks
+-- -- {{{ My hooks (disabled)
 -- -- add transperancy to unofused windows
 -- -- Hook function to execute when focusing a client.
 -- awful.hooks.focus.register(function (c)
@@ -572,11 +475,10 @@ table.remove(mytasklist.buttons, 2)
 -- awful.hooks.unfocus.register(function (c)
 --   c.opacity = 0.6
 -- end)
--- -- }}
+-- -- }}}
 
+-- {{{ My startup progs
+awesome.spawn('xscreensaver -no-splash')
+-- }}}
 
--- {{ programs to run on startup
--- awesome.spawn('conky')
-awesome.spawn('xscreensaver')
--- }}
--- }}
+-- vim: set fdm=marker:
