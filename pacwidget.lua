@@ -21,7 +21,6 @@ wicked.register(pacwidget, run_script, "$1", 60)
 pacman = nil
 function show_packages()
     local out = awful.util.pread('conkypac3.py')
-    io.output('/tmp/test'):write(out)
     out = string.gsub(out, "^%s*$", "")
     pacman = naughty.notify({
         text = string.format('<span font_desc="%s">%s</span>', "monospace", out),

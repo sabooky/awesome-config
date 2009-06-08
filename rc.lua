@@ -479,6 +479,7 @@ table.remove(mytasklist.buttons, 2)
 
 -- {{{ My startup progs
 awesome.spawn('xscreensaver -no-splash')
+awesome.spawn('numlockx')
 -- }}}
 
 -- vim: set fdm=marker:
