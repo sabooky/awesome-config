@@ -3,8 +3,8 @@ require("naughty")
 require("wicked")
 
 -- config
-notify_file = "~/bin/pacawe-notify.conf"
-breif_file = "~/bin/pacawe-breif.conf"
+notify_file = os.getenv("HOME") .. "/.config/awesome/scripts/pacawe-notify.conf"
+breif_file = os.getenv("HOME") .. "/.config/awesome/scripts/pacawe-breif.conf"
 
 -- create pacman widget
 pacwidget = widget({
