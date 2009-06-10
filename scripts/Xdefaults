@@ -1,33 +1,29 @@
-urxvt*termName:           rxvt
-urxvt*font: xft:Terminus:pixelsize=12
+# fonts
+urxvt*termName: rxvt
+urxvt*font:     xft:Terminus:pixelsize=12
 urxvt*boldFont: xft:Terminus:pixelsize=12
 
-urxvt*urlLauncher:      firefox
-#urxvt*depth:              32
-urxvt*foreground:         snow
-urxvt*background:         black
+# colors
+urxvt*depth:            32
+urxvt*foreground:       snow
+urxvt*background:       black
 
-## borderless and no scrollbar
-URxvt*scrollBar_right: false
+# no scrollbar
 URxvt*scrollBar: false
-#URxvt*borderLess: true
 
-## the transparency stuff
+# the transparency stuff
 URxvt*transparent: true
 URxvt*inheritPixmap: true
 URxvt*tintColor: white
 URxvt*shading: 40
-# real transparency
-#urxvt*depth: 32
-#urxvt*background:           rgba:0000/0000/0000/9999
 
 # urls
 URxvt.perl-ext-common:  default,matcher
 URxvt*urlLauncher:      x-www-browser
 URxvt*matcher.button:   3
-URxvt.colorUL:          #86a2be 
+URxvt.colorUL:          #86a2be
 
-# fade options
+## fade options
 #urxvt*fading: 20
 #urxvt*fadeColor: white
 
