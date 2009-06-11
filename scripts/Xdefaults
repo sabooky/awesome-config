@@ -19,7 +19,7 @@ URxvt*shading: 40
 
 # urls
 URxvt.perl-ext-common:  default,matcher
-URxvt*urlLauncher:      x-www-browser
+URxvt*urlLauncher:      firefox
 URxvt*matcher.button:   3
 URxvt.colorUL:          #86a2be
 
